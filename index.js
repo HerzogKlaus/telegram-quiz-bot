@@ -6,27 +6,25 @@ const Telegraf = require("telegraf");
 const bot = new Telegraf("");
 
 // let task = cron.schedule("* * * * *", () => {
-fetch("http://localhost:1234/questions")
+fetch("http://directquiz.ru/questions")
   .then((res) => res.json())
   .then((data) => {
     bot.on("message", async (ctx) => {
       for (let i in data) {
-        if (!data[i].usage) {
+        if (data[i].used === "0") {
           await ctx.replyWithQuiz(
             data[i].questionText,
-            [
-              data[i].answers[0],
-              data[i].answers[1],
-              data[i].answers[2],
-              data[i].answers[3],
-            ],
-            { correct_option_id: data[i].correct }
+            data[i].answers.split(","),
+            {
+              correct_option_id: data[i].correct,
+              chat_id: "@directquiztestchannel",
+            }
           );
         }
-        fetch(`http://localhost:1234/questions/${data[i].id}`, {
+        fetch(`http://directquiz.ru/questions/${data[i].id}`, {
           method: "PATCH",
           body: JSON.stringify({
-            usage: true,
+            used: 1,
           }),
           headers: {
             "Content-type": "application/json; charset=UTF-8",
