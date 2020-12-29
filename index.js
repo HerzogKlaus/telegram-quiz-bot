@@ -1,43 +1,59 @@
-// const cron = require("node-cron");
-
 const fetch = require("node-fetch");
 const Telegraf = require("telegraf");
 
 const bot = new Telegraf("");
 
-// let task = cron.schedule("* * * * *", () => {
-fetch("http://localhost:1234/questions")
+fetch("https://dev.vasnaidut.ru/html/directquiz/questions/questions")
   .then((res) => res.json())
-  .then((data) => {
-    bot.on("message", async (ctx) => {
-      for (let i in data) {
-        if (!data[i].usage) {
-          await ctx.replyWithQuiz(
-            data[i].questionText,
-            [
-              data[i].answers[0],
-              data[i].answers[1],
-              data[i].answers[2],
-              data[i].answers[3],
-            ],
-            { correct_option_id: data[i].correct }
-          );
+  .then(async (questions) => {
+    fetch("https://dev.vasnaidut.ru/html/directquiz/answers/answers")
+      .then((res) => res.json())
+      .then(async (answers) => {
+        resArr = [];
+        for (let i in questions) {
+          try {
+            resArr.push({
+              question: questions[i].question,
+              answers: [
+                {
+                  answer: answers
+                    .filter((ans) => ans.id_question === questions[i].id)
+                    .map((ans) => ans.answer),
+                  correct: answers
+                    .filter((ans) => ans.id_question === questions[i].id)
+                    .map((ans) => ans.is_correct),
+                },
+              ],
+              used: questions[i].used,
+            });
+            if (resArr[i].used === "0") {
+              await bot.telegram.sendQuiz(
+                "@directquiztestchannel",
+                resArr[i].question,
+                resArr[i].answers[0].answer,
+                {
+                  correct_option_id: resArr[i].answers[0].correct.findIndex(
+                    (correct) => correct === "true"
+                  ),
+                }
+              );
+              fetch(
+                `https://dev.vasnaidut.ru/html/directquiz/questions/questions/${questions[i].id}`,
+                {
+                  method: "PATCH",
+                  body: JSON.stringify({
+                    used: "1",
+                  }),
+                  headers: {
+                    "Content-type": "application/json; charset=UTF-8",
+                  },
+                }
+              ).then((response) => response.json());
+            }
+          } catch {
+            continue;
+          }
         }
-        fetch(`http://localhost:1234/questions/${data[i].id}`, {
-          method: "PATCH",
-          body: JSON.stringify({
-            usage: true,
-          }),
-          headers: {
-            "Content-type": "application/json; charset=UTF-8",
-          },
-        }).then((response) => response.json());
-      }
-      bot.stop();
-    });
+      });
   });
-
 bot.launch();
-// });
-
-// task.start();
