@@ -1,7 +1,7 @@
 const fetch = require("node-fetch");
 const Telegraf = require("telegraf");
 
-const bot = new Telegraf("");
+const bot = new Telegraf("1441473851:AAHRnWhjM5GIUiZgY5aWb-PFjlYvjdI2s58");
 
 fetch("https://dev.vasnaidut.ru/html/directquiz/questions/questions")
   .then((res) => res.json())
