@@ -3,10 +3,10 @@ const Telegraf = require("telegraf");
 
 const bot = new Telegraf("");
 setInterval(async () => {
-  fetch("https://dev.vasnaidut.ru/html/directquiz/questions/questions")
+  fetch("api questions here")
     .then(res => res.json())
     .then(async questions => {
-      fetch("https://dev.vasnaidut.ru/html/directquiz/answers/answers")
+      fetch("api answers here")
         .then(res => res.json())
         .then(async answers => {
           resArr = [];
@@ -26,7 +26,7 @@ setInterval(async () => {
                 await bot.telegram.sendQuiz("@directquiztestchannel", resArr[i].question, resArr[i].answers[0].answer, {
                   correct_option_id: resArr[i].answers[0].correct.findIndex(correct => correct === "true"),
                 });
-                fetch(`https://dev.vasnaidut.ru/html/directquiz/questions/questions/${questions[i].id}`, {
+                fetch(`api questions here/${questions[i].id}`, {
                   method: "PATCH",
                   body: JSON.stringify({
                     used: "1",
