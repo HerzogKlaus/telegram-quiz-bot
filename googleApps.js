@@ -1,6 +1,6 @@
 // @ts-nocheck
 function migrateQuestions() {
-  const spreadsheetId = "1R0G0qc8Dyobec9ETBV1WuP_Od9ymzUokI33v2BHcTpU";
+  const spreadsheetId = "spreadsheet id here";
   const sheet = SpreadsheetApp.openById(spreadsheetId).getSheetByName("Quizes");
 
   // Функция для сборки всех значений в столбце
@@ -79,7 +79,7 @@ function migrateQuestions() {
 
   // POST вопросов в API + сравнение с существующими вопросами во избежание повторного поста
 
-  let questions = JSON.parse(UrlFetchApp.fetch("https://dev.vasnaidut.ru/html/directquiz/questions/questions"));
+  let questions = JSON.parse(UrlFetchApp.fetch("api questions here"));
 
   Utilities.sleep(5 * 1000);
 
@@ -89,7 +89,7 @@ function migrateQuestions() {
         question: arrResult[i].question,
       };
 
-      UrlFetchApp.fetch("https://dev.vasnaidut.ru/html/directquiz/questions/questions", {
+      UrlFetchApp.fetch("api questions here", {
         method: "post",
         payload: formData,
       });
@@ -107,7 +107,7 @@ function migrateQuestions() {
           is_correct: arrResult[i].answers[j].isCorrect,
         };
 
-        UrlFetchApp.fetch("https://dev.vasnaidut.ru/html/directquiz/answers/answers", {
+        UrlFetchApp.fetch("api answers here", {
           method: "post",
           payload: formData,
         });
