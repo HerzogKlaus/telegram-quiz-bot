@@ -1,12 +1,12 @@
 const fetch = require("node-fetch");
 const Telegraf = require("telegraf");
-
-const bot = new Telegraf("");
-setInterval(async () => {
-  fetch("api questions here")
+const cron = require("node-cron");
+cron.schedule("45 22 * * *", () => {
+  const bot = new Telegraf("TOKEN_BOT");
+  fetch("QUESTIONS_API_LINK")
     .then(res => res.json())
     .then(async questions => {
-      fetch("api answers here")
+      fetch("ANSWERS_API_LINK")
         .then(res => res.json())
         .then(async answers => {
           resArr = [];
@@ -23,10 +23,10 @@ setInterval(async () => {
                 used: questions[i].used,
               });
               if (resArr[i].used === "0") {
-                await bot.telegram.sendQuiz("@directquiztestchannel", resArr[i].question, resArr[i].answers[0].answer, {
+                await bot.telegram.sendQuiz("TG_CHANNEL_NAME", resArr[i].question, resArr[i].answers[0].answer, {
                   correct_option_id: resArr[i].answers[0].correct.findIndex(correct => correct === "true"),
                 });
-                fetch(`api questions here/${questions[i].id}`, {
+                fetch(`QUESTIONS_API_LINK/${questions[i].id}`, {
                   method: "PATCH",
                   body: JSON.stringify({
                     used: "1",
@@ -36,12 +36,11 @@ setInterval(async () => {
                   },
                 }).then(response => response.json());
               }
-            } catch {
+            } catch(e) {
               continue;
             }
           }
         });
     });
-}, 60000);
-
-bot.launch();
+  bot.launch();
+});
