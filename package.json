@@ -10,7 +10,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "axios": "^0.21.0",
     "node-cron": "^2.0.3",
     "node-fetch": "^2.6.1",
     "telegraf": "^3.38.0"
