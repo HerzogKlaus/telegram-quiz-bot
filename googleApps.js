@@ -43,8 +43,6 @@ function migrateQuestions() {
 
   let questions = JSON.parse(UrlFetchApp.fetch("QUESTIONS_API_LINK"));
 
-  Utilities.sleep(5 * 1000);
-
   for (let i in arrResult) {
     if (!questions[i]) {
       UrlFetchApp.fetch("QUESTIONS_API_LINK", {
