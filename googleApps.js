@@ -1,7 +1,6 @@
 // @ts-nocheck
 function migrateQuestions() {
-  const spreadsheetId = "SPREADSHEET_ID";
-  const sheet = SpreadsheetApp.openById(spreadsheetId).getSheetByName("SHEET_NAME");
+  const sheet = SpreadsheetApp.openById("SPREADSHEET_ID").getSheetByName("Quizes");
 
   // Функция для сборки всех значений в столбце
 
@@ -9,29 +8,21 @@ function migrateQuestions() {
     startRow = startRow || 1;
     numColums = numColums || 1;
     let lastRow = sheet.getLastRow();
-    return sheet.getRange(startRow, column, lastRow - startRow + 1, numColums).getValues();
-  };
-
-  // Функция для сборки значений стилей шрифтов в столбце ответов для выделения правильного
-
-  const getFontWeightsFromColumn = (sheet, column, startRow, numColums) => {
-    startRow = startRow || 1;
-    numColums = numColums || 1;
-    let lastRow = sheet.getLastRow();
-    return sheet.getRange(startRow, column, lastRow - startRow + 1, numColums).getFontWeights();
+    return sheet.getRange(startRow, column, lastRow - startRow + 1, numColums);
   };
 
   // Получение списка первых, вторых и третьих ответов + форматирование
 
-  let arrQuestionsValues = getValuesFromColumn(sheet, 1, 2, 1).map(question => question.toString()),
-    arrAnswersValuesOne = getValuesFromColumn(sheet, 2, 2, 1).map(answer => answer.toString()),
-    arrAnswersValuesTwo = getValuesFromColumn(sheet, 3, 2, 1).map(answer => answer.toString()),
-    arrAnswersValuesThree = getValuesFromColumn(sheet, 4, 2, 1).map(answer => answer.toString()),
+  let arrQuestionsValues = getValuesFromColumn(sheet, 1, 2, 1).getValues().map(question => question.toString()),
+    arrAnswersValuesOne = getValuesFromColumn(sheet, 2, 2, 1).getValues().map(answer => answer.toString()),
+    arrAnswersValuesTwo = getValuesFromColumn(sheet, 3, 2, 1).getValues().map(answer => answer.toString()),
+    arrAnswersValuesThree = getValuesFromColumn(sheet, 4, 2, 1).getValues().map(answer => answer.toString()),
+
     // Получение списка стилей шрифтов первых, вторых и третьих ответов + форматирование
 
-    arrAnswersFontWeightsOne = getFontWeightsFromColumn(sheet, 2, 2, 1).map(answer => answer.toString()),
-    arrAnswersFontWeightsTwo = getFontWeightsFromColumn(sheet, 3, 2, 1).map(answer => answer.toString()),
-    arrAnswersFontWeightsThree = getFontWeightsFromColumn(sheet, 4, 2, 1).map(answer => answer.toString()),
+    arrAnswersFontWeightsOne = getValuesFromColumn(sheet, 2, 2, 1).getFontWeights().map(answer => answer.toString()),
+    arrAnswersFontWeightsTwo = getValuesFromColumn(sheet, 3, 2, 1).getFontWeights().map(answer => answer.toString()),
+    arrAnswersFontWeightsThree = getValuesFromColumn(sheet, 4, 2, 1).getFontWeights().map(answer => answer.toString()),
     // Результирующий массив с объектами {вопрос: текст, ответы: [{ответ: текст, правильный: true/false}]}
 
     arrResult = [];
@@ -56,13 +47,13 @@ function migrateQuestions() {
 
   // POST вопросов в API + сравнение с существующими вопросами во избежание повторного поста
 
-  let questions = JSON.parse(UrlFetchApp.fetch("QUESTIONS_API"));
+  let questions = JSON.parse(UrlFetchApp.fetch("API_QUESTIONS_LINK"));
 
   Utilities.sleep(5 * 1000);
 
   for (let i in arrResult) {
     if (!questions[i]) {
-      UrlFetchApp.fetch("QUESTIONS_API", {
+      UrlFetchApp.fetch("API_QUESTIONS_LINK", {
         method: "post",
         payload: {
           question: arrResult[i].question,
@@ -76,7 +67,7 @@ function migrateQuestions() {
   for (let i in arrResult) {
     if (!questions[i]) {
       for (let j in arrResult[i].answers) {
-        UrlFetchApp.fetch("ANSWERS_API", {
+        UrlFetchApp.fetch("API_ANSWERS_LINK", {
           method: "post",
           payload: {
             id_question: Number(i) + 1,
