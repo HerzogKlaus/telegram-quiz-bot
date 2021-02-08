@@ -1,6 +1,6 @@
 // @ts-nocheck
 function migrateQuestions() {
-  const sheet = SpreadsheetApp.openById("SPREADSHEET_ID").getSheetByName("Quizes");
+  const sheet = SpreadsheetApp.openById("SPREADSHEET_ID").getSheetByName("SHEET_NAME");
 
   // Функция для сборки всех значений в столбце
 
@@ -32,42 +32,30 @@ function migrateQuestions() {
       id: i + 1,
       question: arrQuestionsValues[i],
       answers: [
-        arrAnswersFontWeightsOne[i] === "bold"
-          ? { answer: arrAnswersValuesOne[i], isCorrect: true }
-          : { answer: arrAnswersValuesOne[i], isCorrect: false },
-        arrAnswersFontWeightsTwo[i] === "bold"
-          ? { answer: arrAnswersValuesTwo[i], isCorrect: true }
-          : { answer: arrAnswersValuesTwo[i], isCorrect: false },
-        arrAnswersFontWeightsThree[i] === "bold"
-          ? { answer: arrAnswersValuesThree[i], isCorrect: true }
-          : { answer: arrAnswersValuesThree[i], isCorrect: false },
+        arrAnswersFontWeightsOne[i] === "bold" ? { answer: arrAnswersValuesOne[i], isCorrect: true } : { answer: arrAnswersValuesOne[i], isCorrect: false },
+        arrAnswersFontWeightsTwo[i] === "bold" ? { answer: arrAnswersValuesTwo[i], isCorrect: true } : { answer: arrAnswersValuesTwo[i], isCorrect: false },
+        arrAnswersFontWeightsThree[i] === "bold" ? { answer: arrAnswersValuesThree[i], isCorrect: true } : { answer: arrAnswersValuesThree[i], isCorrect: false },
       ],
     });
   }
 
-  // POST вопросов в API + сравнение с существующими вопросами во избежание повторного поста
+  // POST вопросов и ответов в API + сравнение с существующими вопросами во избежание повторного поста
 
-  let questions = JSON.parse(UrlFetchApp.fetch("API_QUESTIONS_LINK"));
+  let questions = JSON.parse(UrlFetchApp.fetch("QUESTIONS_API_LINK"));
 
   Utilities.sleep(5 * 1000);
 
   for (let i in arrResult) {
     if (!questions[i]) {
-      UrlFetchApp.fetch("API_QUESTIONS_LINK", {
+      UrlFetchApp.fetch("QUESTIONS_API_LINK", {
         method: "post",
         payload: {
           question: arrResult[i].question,
         },
       });
-    }
-  }
 
-  // POST ответов в API + сравнение с существующими вопросами во избежание повторного поста
-
-  for (let i in arrResult) {
-    if (!questions[i]) {
       for (let j in arrResult[i].answers) {
-        UrlFetchApp.fetch("API_ANSWERS_LINK", {
+        UrlFetchApp.fetch("ANSWERS_API_LINK", {
           method: "post",
           payload: {
             id_question: Number(i) + 1,
